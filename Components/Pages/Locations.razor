@@ -1,0 +1,129 @@
+@page "/Locations"
+
+@using Sklad.Components.Models
+@using Sklad.Components.Services
+@using System.Threading
+@inject ToolService ToolService
+@inject NavigationManager NavigationManager
+@using MudBlazor
+@using MudBlazor.Services
+
+<MudGrid RowSpacing="2" ColumnSpacing="2" Justify="Justify.SpaceBetween">
+    <MudItem>
+        <MudText Typo="Typo.h5">Warehouse Locations</MudText>
+    </MudItem>
+    <MudItem>
+       
+    </MudItem>
+</MudGrid>
+
+<MudTable ServerData="ServerReload" Dense="true" Hover="true" @ref="_table">
+    <HeaderContent>
+        <MudTh>
+            <MudTableSortLabel SortLabel="location_field" T="string">Location</MudTableSortLabel>
+        </MudTh>
+        <MudTh Style="text-align: right;">Actions</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Location">@context</MudTd> <!-- context to string (lokalizacja) -->
+        <MudTd Style="text-align: right;">
+            <MudButton Variant="Variant.Filled" Color="Color.Error" Size="Size.Small"
+                       OnClick="() => DeleteLocation(context)">
+                Delete
+            </MudButton>
+        </MudTd>
+    </RowTemplate>
+    <NoRecordsContent>
+        <MudText>No locations found</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Loading...</MudText>
+    </LoadingContent>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+    <FooterContent>
+        <MudTd ColSpan="2">
+            <MudTextField @bind-Value="_newLocation" Placeholder="Enter new location" Variant="Variant.Outlined" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="() => AddLocation(_newLocation)">
+                Add
+            </MudButton>
+        </MudTd>
+    </FooterContent>
+</MudTable>
+
+
+
+@code {
+    private IEnumerable<string> _pagedData;
+    private MudTable<string> _table;
+    private int _totalItems;
+    private string _searchString = string.Empty;
+    private string _newLocation = string.Empty;
+
+    [Inject] ISnackbar Snackbar { get; set; }
+
+    private async Task<TableData<string>> ServerReload(TableState state, CancellationToken token)
+    {
+        IEnumerable<string> data = await ToolService.GetLocationsAsync();
+
+        if (!string.IsNullOrWhiteSpace(_searchString))
+        {
+            data = data.Where(location =>
+                location.Contains(_searchString, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (!string.IsNullOrEmpty(state.SortLabel))
+        {
+            data = state.SortDirection == SortDirection.Ascending
+                ? data.OrderBy(location => location)
+                : data.OrderByDescending(location => location);
+        }
+
+        var pagedData = data
+            .Skip(state.Page * state.PageSize)
+            .Take(state.PageSize)
+            .ToArray();
+
+        return new TableData<string>
+        {
+            TotalItems = data.Count(),
+            Items = pagedData
+        };
+    }
+
+    private async void AddLocation(string location)
+    {
+        try
+        {
+            await ToolService.AddLocationAsync(location);
+            Snackbar.Add($"Location '{location}' added successfully.", Severity.Success);
+            _table.ReloadServerData();
+            _newLocation = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error adding location: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async void DeleteLocation(string location)
+    {
+        try
+        {
+            await ToolService.DeleteLocationsAsync(location);
+            Snackbar.Add($"Location '{location}' deleted successfully.", Severity.Success);
+            _table.ReloadServerData();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error deleting location: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void OnSearch(string text)
+    {
+        _searchString = text;
+        _table.ReloadServerData();
+    }
+}

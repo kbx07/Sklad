@@ -1,0 +1,86 @@
+@page "/OpenAI"
+@using Sklad.Components.Models
+@rendermode InteractiveServer
+
+<h3>Open AI Chat</h3>
+<h3>Wilkommen in unserer Welt der künstlichen Intelligenz!</h3>
+
+<MudPaper Class="p-4">
+    <MudText Typo="Typo.h6">Wähle ein Prompt:</MudText>
+    <MudSelect T="string" Label="Vorgefertigte Fragen" @bind-Value="_currentPrompt">
+        
+        @foreach (var item in _avaivablePrompts)
+        {
+            <MudSelectItem Value="@item">@item</MudSelectItem>
+        }
+    </MudSelect>
+
+
+    <MudTextField T="string" Label="Dein Prompt" @bind-Value="_currentPrompt" Lines="3" Class="mt-3" Placeholder="Was möchtest Du wissen?" />
+
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" OnClick="@SendPrompt">Wyślij</MudButton>
+
+</MudPaper>
+
+<MudPaper Class="mt-5 p-4">
+    <MudText Typo="Typo.h5">Chat Historie:</MudText>
+    <MudList T="MudText">
+        @foreach (var message in _messages)
+        {
+            <MudListItem T="MudText">
+                <MudText><b>@message.Role:</b> @message.Content</MudText>
+            </MudListItem>
+        }
+    </MudList>
+</MudPaper>
+
+@code {
+    private string _currentPrompt;
+    private List<ChatCompletionMessage> _messages = new();
+    private List<string> _avaivablePrompts = new();
+
+    [Inject]
+    public OpenAiService OpenAiService { get; set; }
+
+    [Inject]
+    public IWebHostEnvironment Env { get; set; }
+
+    private async Task SendPrompt()
+    {
+        if (string.IsNullOrWhiteSpace(_currentPrompt)) return;
+
+        _messages.Add(new ChatCompletionMessage { Role = "User", Content = _currentPrompt });
+
+        var answer = await OpenAiService.GetAnswerAsync(_currentPrompt);
+
+        _messages.Add(new ChatCompletionMessage { Role = "AI", Content = answer });
+
+        await LogConversationAsync(_currentPrompt, answer);
+
+        _currentPrompt = string.Empty;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _messages.Add(new ChatCompletionMessage { Role = "System", Content = "Willkommen, stelle mir ne Frage" });
+
+        var webRootPat = Env.WebRootPath;
+        var csvPath = Path.Combine(webRootPat, "data", "prompts.csv");
+        var lines = File.ReadAllLines(csvPath);
+
+        for (int i = 1; i < lines.Length; i++)
+        {
+            var line = lines[i].Trim().Trim('"');
+            if (!string.IsNullOrWhiteSpace(line)) _avaivablePrompts.Add(line);
+        }
+    }
+
+    private async Task LogConversationAsync(string userPrompt, string aiResponse)
+    {
+        var logLine = $"{DateTime.Now};\"{userPrompt}\";\"{aiResponse}\"{Environment.NewLine}";
+        var logFilePath = Path.Combine("wwwroot", "data", "history.csv");
+
+        await File.AppendAllTextAsync(logFilePath, logLine);
+    }
+}

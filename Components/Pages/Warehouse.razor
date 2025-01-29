@@ -1,0 +1,204 @@
+@page "/Warehouse"
+
+@using Sklad.Components.Models
+@using Sklad.Components.Services
+@using Sklad.Components.Pages
+@using System.Threading
+@inject ToolService ToolService
+@inject NavigationManager NavigationManager
+@using MudBlazor
+@using MudBlazor.Services
+
+
+<MudGrid RowSpacing="2" ColumnSpacing="2" Justify="Justify.SpaceBetween">
+    <MudItem>
+        <MudText Typo="Typo.h5">Warehouse</MudText>
+    </MudItem>
+    <MudItem>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="() => EditTool()">
+            Add
+        </MudButton>
+    </MudItem>
+</MudGrid>
+
+
+<MudTable ServerData="ServerReload" Dense="true" Hover="true" @ref="table">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Dein Werkzeug</MudText>
+        <MudSpacer/>
+
+        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+
+    <HeaderContent>
+        <MudTh>
+            <MudTableSortLabel SortLabel="id_field" T="Tool">ID</MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel SortLabel="name_field" T="Tool">Name</MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel SortLabel="quantity_field" T="Tool">Quantity</MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel SortLabel="location_field" T="Tool">Location</MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel SortLabel="category_field" T="Tool">Category</MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel SortLabel="description_field" T="Tool">Description</MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel SortLabel="condition_field" T="Tool">Condition</MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel SortLabel="borrowed_field" T="Tool">Borrowed</MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel SortLabel="tags_field" T="Tool">Tags</MudTableSortLabel>
+        </MudTh>
+        <MudTh>Actions</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="ID">@context.Id</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Quantity">@context.Quantity</MudTd>
+        <MudTd DataLabel="Location">@context.Location</MudTd>
+        <MudTd DataLabel="Category">@context.Category</MudTd>
+        <MudTd DataLabel="Description">@context.Description</MudTd>
+        <MudTd DataLabel="Condition">@context.Condition</MudTd>
+        <MudTd DataLabel="Borrowed">@context.Borrowed</MudTd>
+        <MudTd DataLabel="Tags">@context.Tags</MudTd>
+
+
+        <MudTd>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                       OnClick="() => EditTool(context.Id)">
+                Edit
+            </MudButton>
+
+            <MudButton Variant="Variant.Filled" Color="Color.Error" Size="Size.Small"
+                       OnClick="() => DeleteTool(context.Id)">
+                Delete
+            </MudButton>
+        </MudTd>
+
+    </RowTemplate>
+
+    <NoRecordsContent>
+        <MudText>No matching records found</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Loading...</MudText>
+    </LoadingContent>
+    <PagerContent>
+        <MudTablePager/>
+    </PagerContent>
+
+
+</MudTable>
+
+@code {
+    [Inject] ISnackbar Snackbar { get; set; }
+    private IEnumerable<Tool?> pagedData;
+    private MudTable<Tool?> table;
+    private int totalItems;
+    private string searchString = null;
+    
+    [CascadingParameter] MudBlazor.IDialogReference MudDialog { get; set; }
+    [Parameter] public string ContentText { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Delete";
+    [Parameter] public Color Color { get; set; } = Color.Error;
+    [Inject] private MudBlazor.IDialogService DialogService { get; set; }
+
+
+    private async Task<TableData<Tool?>> ServerReload(TableState state, CancellationToken token)
+    {
+        IEnumerable<Tool?> data = await ToolService.GetAllToolsAsync();
+        await Task.Delay(300, token);
+
+        data = data.Where(tool =>
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (tool.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (tool.Location.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if ($"{tool.Id} {tool.Category} {tool.Description}".Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }).ToArray();
+
+        totalItems = data.Count();
+        switch (state.SortLabel)
+        {
+            case "id_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Id);
+                break;
+            case "name_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Name);
+                break;
+            case "quantity_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Quantity);
+                break;
+            case "location_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Location);
+                break;
+            case "category_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Category);
+                break;
+            case "description_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Description);
+                break;
+            case "condition_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Condition);
+                break;
+            case "borrowed_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Borrowed);
+                break;
+            case "tags_field":
+                data = data.OrderByDirection(state.SortDirection, o => o.Tags);
+                break;
+        }
+
+        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<Tool?>() { TotalItems = totalItems, Items = pagedData };
+    }
+
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        table.ReloadServerData();
+    }
+
+    private void EditTool(int? id = null)
+    {
+        NavigationManager.NavigateTo($"/Edit/{id}");
+    }
+
+    private async void DeleteTool(int id)
+    {
+        await ToolService.DeleteToolAsync(id);
+        table.ReloadServerData();
+    }
+    
+  
+
+
+
+   
+
+
+    
+
+
+
+ 
+
+    
+
+}

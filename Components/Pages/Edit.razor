@@ -1,0 +1,325 @@
+@page "/Edit"
+
+@using FluentValidation
+@using Sklad.Components.Models
+@using Sklad.Components.Services
+@page "/Edit/{ToolId:int}"
+<h3>Edit</h3>
+
+<MudCard>
+
+
+    <MudForm Model="@model" @ref="@form" Validation="@(toolValidator.ValidateValue)" ValidationDelay="0">
+        
+        
+        <MudCardContent>
+
+            <MudTextField @bind-Value="model.Name"
+                          Immediate="true"
+                          Label="Name"
+                          Style="width: 60%;"
+                          For="@(() => model.Name)"/>
+
+            <MudDivider/>
+
+            <MudNumericField RowGap="50px" @bind-Value="model.Quantity"
+                             Immediate="true"
+                             Label="Quantity"
+                             Style="width: 60%;"
+                             For="@(() => model.Quantity)"/>
+
+            <MudGrid RowSpacing="2" ColumnSpacing="5">
+                <MudItem xs="90">
+                    <MudTextField @bind-Value="model.Location"
+                                  Immediate="true"
+                                  Label="Enter a new location"
+                                  For="@(() => model.Location)"/>
+                </MudItem>
+
+                <MudItem xs="250" Style="width: 15%;">
+                    <MudSelect T="string" @bind-Value="model.Location" Label="Choose saved location" Style="width: 100%;">
+                        @foreach (var lok in Locations.Where(l => !string.IsNullOrWhiteSpace(l)))
+                        {
+                            <MudSelectItem Value="@lok">@lok</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+
+
+            <MudGrid Rowspacing="2" ColumnSpacing="5">
+                <MudItem xs="90">
+                    <MudTextField @bind-Value="model.Category"
+                                  Immediate="true"
+                                  Label="Enter a new category"
+                                  For="@(() => model.Category)"/>
+                </MudItem>
+                <MudItem xs="250" Style="width: 15%;">
+                    <MudSelect T="string"
+                               @bind-Value="model.Category"
+                               Label="Choose saved category">
+                        @foreach (var cat in Categories.Where(l => !string.IsNullOrWhiteSpace(l)))
+                        {
+                            <MudSelectItem Value="@cat">@cat</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+
+            <MudTextField @bind-Value="model.Description"
+                          Immediate="true"
+                          Label="Description"
+                          Style="width: 60%;"
+                         />
+
+
+            <MudGrid RowSpacer="2" ColumnSpacer="2">
+                <MudItem xs="90">
+                    <MudTextField @bind-Value="model.Condition"
+                                  Immediate="true"
+                                  Label="Condition"
+                                  For="@(() => model.Condition)"/>
+                </MudItem>
+                <MudItem xs="250" Style="width: 15%">
+                    <MudSelect T="string" @bind-Value="model.Condition" Label="Condition">
+                        @foreach (var condition in Conditions.Where(l => !string.IsNullOrWhiteSpace(l)))
+                        {
+                            <MudSelectItem Value="@condition">@condition</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+
+            <MudSwitch T="bool"
+                       @bind-Checked="model.Borrowed"
+                       Label="Borrowed"
+                       Color="Color.Primary"
+                       Style="width: 60%;"/>
+
+            <MudTextField @bind-Value="model.Tags"
+                          Immediate="true"
+                          Label="Tags"
+                          Style="width: 60%;"
+                          For="@(() => model.Tags)"/>
+
+            <MudTextField @bind-Value="model.Borrower"
+                          Immediate="true"
+                          Label="Borrower"
+                          Style="width: 60%;"
+                          For="@(() => model.Borrower)"/>
+
+            <MudDatePicker @bind-Date="model.ReturnDate"
+                           Label="Return Date"
+                           Style="width: 60%;"/>
+
+            <MudDatePicker @bind-Date="model.DateModified"
+                           Label="Date Modified"
+                           Style="width: 60%;"/>
+
+
+
+            <MudTextField @bind-Value="model.ImagePath"
+                          Immediate="true"
+                          Label="Image Path"
+                          Style="width: 60%;"
+                          For="@(() => model.ImagePath)"/>
+
+
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="@(async () => await Submit())">
+                Save
+            </MudButton>
+        </MudCardActions>
+    </MudForm>
+</MudCard>
+
+
+
+@code {
+    [Inject] ISnackbar Snackbar { get; set; }
+    [Inject] ToolService ToolService { get; set; }
+    [Inject] NavigationManager NavigationManager { get; set; }
+
+    private MudForm form;
+    private Add.ToolModelFluentValidator toolValidator = new();
+    private Add.ToolModel model = new Add.ToolModel { DateAdded = DateTime.Now };
+
+    [Parameter] public int? ToolId { get; set; }
+    private IEnumerable<string> Locations = new List<string>();
+    private IEnumerable<string> Categories = new List<string>();
+    private IEnumerable<string> Conditions = new List<string>();
+    private string? NewLocation; // Pole dla nowej lokalizacji
+
+    private bool IsAddingNewLocation = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Pobranie danych z serwisów
+        Locations = await ToolService.GetLocationsAsync();
+        Categories = await ToolService.GetCategoriesAsync();
+        Conditions = await ToolService.GetConditionsAsync();
+
+        // Pobranie szczegółów narzędzia do edycji
+        if (ToolId.HasValue)
+        {
+            var tool = await ToolService.GetToolByIdAsync(ToolId.Value);
+            if (tool != null)
+            {
+                model = new Add.ToolModel
+                {
+                    Name = tool.Name,
+                    // Initialize selectedLocation with the tool's location
+                    Location = tool.Location, 
+                    Description = tool.Description,
+                    Borrowed = tool.Borrowed,
+                    DateAdded = tool.DateAdded,
+                    DateModified = tool.DateModified,
+                    Category = tool.Category,
+                    Condition = tool.Condition,
+                    Borrower = tool.Borrower,
+                    ReturnDate = tool.ReturnDate,
+                    Tags = tool.Tags,
+                    ImagePath = tool.ImagePath,
+                    Quantity = tool.Quantity
+                };
+
+                // Initialize selectedLocation with the tool's location
+                //selectedLocation = tool.Location; 
+            }
+        }
+    }
+    public class ToolModel
+    {
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+        public string? Location { get; set; }
+        public bool Borrowed { get; set; }
+        public DateTime DateAdded { get; set; }
+        public DateTime? DateModified { get; set; }
+        public string? Category { get; set; }
+        public string? Condition { get; set; }
+        public string? Borrower { get; set; }
+        public DateTime? ReturnDate { get; set; }
+        public string? Tags { get; set; }
+        public string? ImagePath { get; set; }
+        public int Quantity { get; set; }
+    }
+    public class ToolModelFluentValidator : AbstractValidator<ToolModel>
+    {
+        public ToolModelFluentValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty()
+                .Length(1, 200);
+            RuleFor(x => x.Location)
+                //.NotEmpty()
+                .Length(1, 200);
+            RuleFor(x => x.Description)
+                .Length(1, 200);
+
+            RuleFor(x => x.Quantity)
+                //.NotEmpty()
+                .GreaterThan(0);
+
+            RuleFor(x => x.Category)
+                //.NotEmpty()
+                .Length(1, 100);
+
+            RuleFor(x => x.Condition)
+                //.NotEmpty()
+                .Length(1, 100);
+
+            RuleFor(x => x.Borrower)
+                .Length(0, 100);
+
+            RuleFor(x => x.Tags)
+                .Length(0, 100);
+
+            RuleFor(x => x.ImagePath)
+                .Length(0, 200);
+        }
+
+        public Func<object, string, Task<IEnumerable<string>>> ValidateValue => async (model, propertyName) =>
+        {
+            var result = await ValidateAsync(ValidationContext<ToolModel>.CreateWithOptions((ToolModel)model, x => x.IncludeProperties(propertyName)));
+            if (result.IsValid)
+                return Array.Empty<string>();
+            return result.Errors.Select(e => e.ErrorMessage);
+        };
+    }
+
+    private async Task Submit()
+{
+    await form.Validate();
+
+    if (form.IsValid)
+    {
+        // Adding new location
+        if (IsAddingNewLocation && !string.IsNullOrWhiteSpace(NewLocation))
+        {
+            model.Location = NewLocation;
+            await ToolService.AddLocationAsync(NewLocation);
+            Locations = await ToolService.GetLocationsAsync();
+        }
+
+        // Sprawdź, czy edytujesz istniejące narzędzie
+        if (ToolId.HasValue)
+        {
+            // Pobierz istniejące narzędzie z bazy danych
+            var existingTool = await ToolService.GetToolByIdAsync(ToolId.Value);
+            if (existingTool == null)
+            {
+                Snackbar.Add("Tool not found for editing.", MudBlazor.Severity.Error);
+                return;
+            }
+
+            // Zaktualizuj właściwości istniejącego narzędzia
+            existingTool.Name = model.Name;
+            existingTool.Location = model.Location;
+            existingTool.Description = model.Description;
+            existingTool.Borrowed = model.Borrowed;
+            existingTool.DateAdded = model.DateAdded;
+            existingTool.DateModified = DateTime.Now;
+            existingTool.Category = model.Category;
+            existingTool.Condition = model.Condition;
+            existingTool.Borrower = model.Borrower;
+            existingTool.ReturnDate = model.ReturnDate;
+            existingTool.Tags = model.Tags;
+            existingTool.ImagePath = model.ImagePath;
+            existingTool.Quantity = model.Quantity;
+
+            // Zapisz zmiany
+            await ToolService.UpdateToolAsync(existingTool, existingTool.Id);
+        }
+        else
+        {
+            // Tworzenie nowego narzędzia
+            var newTool = new Tool
+            {
+                Name = model.Name,
+                Location = model.Location,
+                Description = model.Description,
+                Borrowed = model.Borrowed,
+                DateAdded = DateTime.Now,
+                DateModified = DateTime.Now,
+                Category = model.Category,
+                Condition = model.Condition,
+                Borrower = model.Borrower,
+                ReturnDate = model.ReturnDate,
+                Tags = model.Tags,
+                ImagePath = model.ImagePath,
+                Quantity = model.Quantity
+            };
+
+            await ToolService.AddToolAsync(newTool);
+        }
+
+        Snackbar.Add("Tool saved successfully!", MudBlazor.Severity.Success);
+        NavigationManager.NavigateTo("/Warehouse");
+    }
+}
+
+    
+    
+}
