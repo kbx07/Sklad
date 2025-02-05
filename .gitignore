@@ -1,6 +1,10 @@
-# Pliki IntelliJ Rider (IDEA)
+# IntelliJ Rider Files (IDEA)
 .idea/
 
-# Pliki build
+# build Files
 bin/
 obj/
+
+# config
+appsettings.json
+appsettings.Development.json
