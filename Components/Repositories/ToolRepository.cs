@@ -54,7 +54,7 @@ public class ToolRepository : Repository<Tool>, ITollRepository
         return await _context.Tool.Select(t => t.Condition).Distinct().ToListAsync();
     }
     
-    public async Task AddLocationAsync(string location)
+    public async Task AddLocationAsync(string? location)
     {
         if (!await _context.Tool.AnyAsync(t => t.Location == location))
         {

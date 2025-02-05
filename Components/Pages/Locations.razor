@@ -55,22 +55,21 @@
 
 
 @code {
-    private IEnumerable<string> _pagedData;
-    private MudTable<string> _table;
-    private int _totalItems;
+    private IEnumerable<string>? _pagedData;
+    private MudTable<string?> _table;
     private string _searchString = string.Empty;
     private string _newLocation = string.Empty;
 
-    [Inject] ISnackbar Snackbar { get; set; }
+    [Inject] ISnackbar? Snackbar { get; set; }
 
     private async Task<TableData<string>> ServerReload(TableState state, CancellationToken token)
     {
-        IEnumerable<string> data = await ToolService.GetLocationsAsync();
+        IEnumerable<string?> data = await ToolService.GetLocationsAsync();
 
         if (!string.IsNullOrWhiteSpace(_searchString))
         {
             data = data.Where(location =>
-                location.Contains(_searchString, StringComparison.OrdinalIgnoreCase));
+                location != null && location.Contains(_searchString, StringComparison.OrdinalIgnoreCase));
         }
 
         if (!string.IsNullOrEmpty(state.SortLabel))
@@ -80,15 +79,16 @@
                 : data.OrderByDescending(location => location);
         }
 
-        var pagedData = data
+        var enumerable = data as string[] ?? data.ToArray();
+        var pagedData = enumerable
             .Skip(state.Page * state.PageSize)
             .Take(state.PageSize)
             .ToArray();
 
         return new TableData<string>
         {
-            TotalItems = data.Count(),
-            Items = pagedData
+            TotalItems = enumerable.Count(),
+            Items = pagedData!
         };
     }
 
@@ -97,13 +97,13 @@
         try
         {
             await ToolService.AddLocationAsync(location);
-            Snackbar.Add($"Location '{location}' added successfully.", Severity.Success);
-            _table.ReloadServerData();
+            Snackbar?.Add($"Location '{location}' added successfully.", Severity.Success);
+            await _table.ReloadServerData();
             _newLocation = string.Empty;
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Error adding location: {ex.Message}", Severity.Error);
+            Snackbar?.Add($"Error adding location: {ex.Message}", Severity.Error);
         }
     }
 
@@ -112,18 +112,13 @@
         try
         {
             await ToolService.DeleteLocationsAsync(location);
-            Snackbar.Add($"Location '{location}' deleted successfully.", Severity.Success);
-            _table.ReloadServerData();
+            Snackbar?.Add($"Location '{location}' deleted successfully.", Severity.Success);
+            await _table.ReloadServerData();
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Error deleting location: {ex.Message}", Severity.Error);
+            Snackbar?.Add($"Error deleting location: {ex.Message}", Severity.Error);
         }
     }
 
-    private void OnSearch(string text)
-    {
-        _searchString = text;
-        _table.ReloadServerData();
-    }
 }

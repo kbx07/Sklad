@@ -13,18 +13,16 @@ public class AppDbContext : DbContext
     
     public DbSet<Tool> Tool { get; set; }
     
-    // Opcjonalnie: Możesz skonfigurować model w metodzie OnModelCreating
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Tool>(entity =>
         {
-            entity.ToTable("Tool"); // Wymusza małe litery
-            //entity.HasKey(e => e.Id); // Klucz główny
+            entity.ToTable("Tool"); 
+            
         });
         
         base.OnModelCreating(modelBuilder);
-
-        // Iteracja przez wszystkie encje
+        
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             var properties = entityType.ClrType.GetProperties()
@@ -33,10 +31,9 @@ public class AppDbContext : DbContext
             foreach (var property in properties)
             {
                 var converter = new ValueConverter<DateTime, DateTime>(
-                    v => v.ToUniversalTime(), // Konwersja podczas zapisu (do UTC)
-                    v => DateTime.SpecifyKind(v, DateTimeKind.Utc)); // Konwersja podczas odczytu (UTC)
-
-                // Ustawienie konwersji na poziomie encji
+                    v => v.ToUniversalTime(), 
+                    v => DateTime.SpecifyKind(v, DateTimeKind.Utc)); 
+                
                 modelBuilder.Entity(entityType.ClrType)
                     .Property(property.Name)
                     .HasConversion(converter);

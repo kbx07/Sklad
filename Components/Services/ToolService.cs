@@ -6,8 +6,7 @@ namespace Sklad.Components.Services;
 public class ToolService
 {
     private readonly ITollRepository _tollRepository;
- 
-
+    
     public ToolService(ITollRepository tollRepository)
     {
         _tollRepository = tollRepository;
@@ -60,23 +59,20 @@ public class ToolService
     
     public async Task<IEnumerable<string?>> GetLocationsAsync()
     {
-        // Pobierz listę unikalnych lokalizacji z bazy danych
         return await _tollRepository.GetLocationsAsync();
     }
 
     public async Task<IEnumerable<string?>> GetCategoriesAsync()
     {
-        // Pobierz listę unikalnych kategorii z bazy danych
         return await _tollRepository.GetCategoriesAsync();
     }
 
     public async Task<IEnumerable<string?>> GetConditionsAsync()
     {
-        // Pobierz listę unikalnych stanów z bazy danych
         return await _tollRepository.GetConditionsAsync();
     }
     
-    public async Task AddLocationAsync(string location)
+    public async Task AddLocationAsync(string? location)
     {
         await _tollRepository.AddLocationAsync(location);
     }

@@ -8,3 +8,8 @@ obj/
 # config
 appsettings.json
 appsettings.Development.json
+
+
+Pages/Test.razor
+Pages/Weather.razor
+Pages/Counter.razor

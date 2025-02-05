@@ -11,7 +11,7 @@ public interface ITollRepository : IRepository<Tool>
     Task<IEnumerable<string?>> GetCategoriesAsync();
     Task<IEnumerable<string?>> GetConditionsAsync();
 
-    Task AddLocationAsync(string location);
+    Task AddLocationAsync(string? location);
     Task AddCategoryAsync(string category);
     Task AddConditionAsync(string category);
     Task DeleteLocationAsync(string location);
