@@ -10,6 +10,8 @@ appsettings.json
 appsettings.Development.json
 
 
-Pages/Test.razor
-Pages/Weather.razor
-Pages/Counter.razor
+Components/Pages/Test.razor
+Components/Pages/Weather.razor
+Components/Pages/Counter.razor
+
+.Ds_Store
