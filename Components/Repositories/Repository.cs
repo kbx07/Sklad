@@ -20,8 +20,7 @@ public class Repository<T> : IRepository<T> where T : class
     {
         return await _dbSet.OrderByDescending(x => EF.Property<int>(x, "Id")).ToListAsync();
     }
-
-
+    
     public async Task<T?> GetByIdAsync(int id)
     {
         return await _dbSet.FindAsync(id);
@@ -35,27 +34,16 @@ public class Repository<T> : IRepository<T> where T : class
 
     public async Task UpdateAsync(T entity, int id)
     {
-        
-        // Znajdź istniejący obiekt na podstawie ID
         var existingEntity = await GetByIdAsync(id);
         if (existingEntity == null)
         {
             throw new InvalidOperationException("Entity not found.");
         }
-
-        // Zaktualizuj właściwości istniejącego obiektu
+        
         _context.Entry(existingEntity).CurrentValues.SetValues(entity);
-
-        // Zapisz zmiany w bazie danych
+        
         await _context.SaveChangesAsync();
     }
-
-
-
-    
-    
-
-
     
     public async Task DeleteAsync(int id)
     {

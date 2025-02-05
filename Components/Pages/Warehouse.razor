@@ -22,7 +22,7 @@
 </MudGrid>
 
 
-<MudTable ServerData="ServerReload" Dense="true" Hover="true" @ref="table">
+<MudTable ServerData="ServerReload" Dense="true" Hover="true" @ref="_table">
 
     <ToolBarContent>
         <MudText Typo="Typo.h6">Your tools</MudText>
@@ -102,17 +102,16 @@
 </MudTable>
 
 @code {
-    [Inject] ISnackbar Snackbar { get; set; }
-    private IEnumerable<Tool?> pagedData;
-    private MudTable<Tool?> table;
-    private int totalItems;
-    private string searchString = null;
+    [Inject] ISnackbar Snackbar { get; set; } = null!;
+    private Tool?[] _pagedData = null!;
+    private MudTable<Tool> _table = null!;
+    private string? _searchString = null;
     
-    [CascadingParameter] MudBlazor.IDialogReference MudDialog { get; set; }
-    [Parameter] public string ContentText { get; set; }
+    [CascadingParameter] IDialogReference MudDialog { get; set; } = null!;
+    [Parameter] public string ContentText { get; set; } = null!;
     [Parameter] public string ButtonText { get; set; } = "Delete";
     [Parameter] public Color Color { get; set; } = Color.Error;
-    [Inject] private MudBlazor.IDialogService DialogService { get; set; }
+    [Inject] private IDialogService? DialogService { get; set; }
 
 
     private async Task<TableData<Tool?>> ServerReload(TableState state, CancellationToken token)
@@ -122,18 +121,19 @@
 
         data = data.Where(tool =>
         {
-            if (string.IsNullOrWhiteSpace(searchString))
+            if (string.IsNullOrWhiteSpace(_searchString))
                 return true;
-            if (tool.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            if (tool.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
                 return true;
-            if (tool.Location.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            if (tool.Location.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
                 return true;
-            if ($"{tool.Id} {tool.Category} {tool.Description}".Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            if ($"{tool.Id} {tool.Category} {tool.Description}".Contains(_searchString, StringComparison.OrdinalIgnoreCase))
                 return true;
             return false;
         }).ToArray();
 
-        totalItems = data.Count();
+    
+        var totalItems = data.Count();
         switch (state.SortLabel)
         {
             case "id_field":
@@ -165,14 +165,14 @@
                 break;
         }
 
-        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
-        return new TableData<Tool?>() { TotalItems = totalItems, Items = pagedData };
+        _pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<Tool?>() { TotalItems = totalItems, Items = _pagedData };
     }
 
     private void OnSearch(string text)
     {
-        searchString = text;
-        table.ReloadServerData();
+        _searchString = text;
+        _table.ReloadServerData();
     }
 
     private void EditTool(int? id = null)
@@ -182,8 +182,15 @@
 
     private async void DeleteTool(int id)
     {
-        await ToolService.DeleteToolAsync(id);
-        table.ReloadServerData();
+        try
+        {
+            await ToolService.DeleteToolAsync(id);
+            await _table.ReloadServerData();
+        }
+        catch (Exception e)
+        {
+            throw; // TODO handle exception
+        }
     }
     
   

@@ -100,6 +100,4 @@ public class ToolService
     {
         await _tollRepository.DeleteCategoryAsync(category);
     }
-    
-
 }

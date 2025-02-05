@@ -13,8 +13,7 @@ public class ToolRepository : Repository<Tool>, ITollRepository
     {
         _context = context;
     }
-
-
+    
     public async Task<IEnumerable<Tool>> GetToolsByLocation(string location)
     {
         return await _context.Tool
@@ -38,19 +37,17 @@ public class ToolRepository : Repository<Tool>, ITollRepository
     
     public async Task<IEnumerable<string?>> GetLocationsAsync()
     {
-        // Pobierz listę unikalnych lokalizacji z bazy danych
         return await _context.Tool.Select(t => t.Location).Distinct().ToListAsync();
     }
 
     public async Task<IEnumerable<string?>> GetCategoriesAsync()
     {
-        // Pobierz listę unikalnych kategorii z bazy danych
+        
         return await _context.Tool.Select(t => t.Category).Distinct().ToListAsync();
     }
 
     public async Task<IEnumerable<string?>> GetConditionsAsync()
     {
-        // Pobierz listę unikalnych stanów z bazy danych
         return await _context.Tool.Select(t => t.Condition).Distinct().ToListAsync();
     }
     
@@ -113,13 +110,5 @@ public class ToolRepository : Repository<Tool>, ITollRepository
             await _context.SaveChangesAsync();
         }
     }
-
-   
-    
- 
-    
- 
-
-
     
 }
