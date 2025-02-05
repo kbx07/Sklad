@@ -1,16 +1,28 @@
 ﻿<Project>
   <ItemGroup>
+    <StaticWebAssetEndpoint Include="_content/Sklad/data/css/styles.ck2kyd2o5d.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\data\css\styles.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"ck2kyd2o5d"},{"Name":"integrity","Value":"sha256-/B/9SVxJEk4euqRMgh\u002BrG3z8E7j9aTPH4tQ3F8bns3M="},{"Name":"label","Value":"_content/Sklad/data/css/styles.css"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"211"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022/B/9SVxJEk4euqRMgh\u002BrG3z8E7j9aTPH4tQ3F8bns3M=\u0022"},{"Name":"Last-Modified","Value":"Wed, 05 Feb 2025 11:35:48 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/Sklad/data/css/styles.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\data\css\styles.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-/B/9SVxJEk4euqRMgh\u002BrG3z8E7j9aTPH4tQ3F8bns3M="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"211"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022/B/9SVxJEk4euqRMgh\u002BrG3z8E7j9aTPH4tQ3F8bns3M=\u0022"},{"Name":"Last-Modified","Value":"Wed, 05 Feb 2025 11:35:48 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/Sklad/data/history.csv">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\data\history.csv'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-4GDBsF2JkV\u002BVz5tSl7P/pQAOs3xrZ7M0UIvnZ1D5a/8="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"4221"},{"Name":"Content-Type","Value":"text/csv"},{"Name":"ETag","Value":"\u00224GDBsF2JkV\u002BVz5tSl7P/pQAOs3xrZ7M0UIvnZ1D5a/8=\u0022"},{"Name":"Last-Modified","Value":"Tue, 28 Jan 2025 17:01:18 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-4dfQtrSyCwcxlbpQMFzXAzbk4xv3If2xY8lQzrKn8TM="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"4782"},{"Name":"Content-Type","Value":"text/csv"},{"Name":"ETag","Value":"\u00224dfQtrSyCwcxlbpQMFzXAzbk4xv3If2xY8lQzrKn8TM=\u0022"},{"Name":"Last-Modified","Value":"Wed, 05 Feb 2025 12:00:53 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/Sklad/data/history.g8v8j3b7g6.csv">
+    <StaticWebAssetEndpoint Include="_content/Sklad/data/history.dxnnv8yldy.csv">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\data\history.csv'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"g8v8j3b7g6"},{"Name":"integrity","Value":"sha256-4GDBsF2JkV\u002BVz5tSl7P/pQAOs3xrZ7M0UIvnZ1D5a/8="},{"Name":"label","Value":"_content/Sklad/data/history.csv"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"4221"},{"Name":"Content-Type","Value":"text/csv"},{"Name":"ETag","Value":"\u00224GDBsF2JkV\u002BVz5tSl7P/pQAOs3xrZ7M0UIvnZ1D5a/8=\u0022"},{"Name":"Last-Modified","Value":"Tue, 28 Jan 2025 17:01:18 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"dxnnv8yldy"},{"Name":"integrity","Value":"sha256-4dfQtrSyCwcxlbpQMFzXAzbk4xv3If2xY8lQzrKn8TM="},{"Name":"label","Value":"_content/Sklad/data/history.csv"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"4782"},{"Name":"Content-Type","Value":"text/csv"},{"Name":"ETag","Value":"\u00224dfQtrSyCwcxlbpQMFzXAzbk4xv3If2xY8lQzrKn8TM=\u0022"},{"Name":"Last-Modified","Value":"Wed, 05 Feb 2025 12:00:53 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/Sklad/data/prompts.3pb3i4aplc.csv">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\data\prompts.csv'))</AssetFile>

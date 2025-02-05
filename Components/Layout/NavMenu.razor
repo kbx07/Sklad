@@ -1,4 +1,4 @@
-﻿
+﻿@inject IJSRuntime JS
 <MudNavMenu>
     <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
     @*
@@ -8,13 +8,28 @@
     @*
     <MudNavLink Href="Test" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List">List</MudNavLink>
     *@
-    <MudNavLink Href="OpenAI" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Chat">OpenAI</MudNavLink>
+    <MudNavLink Href="OpenAI" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Chat">Chat GPT</MudNavLink>
     <MudNavLink Href="Warehouse" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Construction">Warehouse</MudNavLink>
     <MudNavLink Href="Locations" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AddLocation">Locations</MudNavLink>
     <MudNavLink Href="Category" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Category">Categories</MudNavLink>
     <MudNavLink Href="Condition" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.ControlPointDuplicate">Conditions</MudNavLink>
     @*<MudNavLink Href="Add" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Dataset">Add</MudNavLink>
     <MudNavLink Href="Edit" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Dataset">Edit</MudNavLink>*@
+    <MudContainer Style="position: fixed; bottom: 0; left: 0; width: 10%; padding: 4px; text-align: center; background-color: #7e6fff; box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);">
+        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="() => OpenWebsite()" Style="color: white;">
+            made by kuban07 &copy;
+        </MudButton>
+    </MudContainer>
+
 </MudNavMenu>
+
+@code {
+    
+    private void OpenWebsite()
+    {
+        var url = "https://blog.kuba.i234.me";  
+        JS.InvokeVoidAsync("window.open", url, "_blank");
+    }
+}
 
 

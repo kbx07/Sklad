@@ -2,12 +2,13 @@
 @using Sklad.Components.Models
 @rendermode InteractiveServer
 
-<h3>Open AI Chat</h3>
-<h3>Wilkommen in unserer Welt der künstlichen Intelligenz!</h3>
+
+<h3>Your personal AI</h3>
+<br/>
 
 <MudPaper Class="p-4">
-    <MudText Typo="Typo.h6">Wähle ein Prompt:</MudText>
-    <MudSelect T="string" Label="Vorgefertigte Fragen" @bind-Value="_currentPrompt">
+    <MudText Typo="Typo.h6">Choose a prompt:</MudText>
+    <MudSelect T="string" Label="Predefined questions" @bind-Value="_currentPrompt">
         
         @foreach (var item in _avaivablePrompts)
         {
@@ -16,15 +17,15 @@
     </MudSelect>
 
 
-    <MudTextField T="string" Label="Dein Prompt" @bind-Value="_currentPrompt" Lines="3" Class="mt-3" Placeholder="Was möchtest Du wissen?" />
+    <MudTextField T="string" Label="Your prompt" @bind-Value="_currentPrompt" Lines="3" Class="mt-3" Placeholder="What do you want to know?" />
 
 
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" OnClick="@SendPrompt">Wyślij</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-3" OnClick="@SendPrompt">Send</MudButton>
 
 </MudPaper>
 
 <MudPaper Class="mt-5 p-4">
-    <MudText Typo="Typo.h5">Chat Historie:</MudText>
+    <MudText Typo="Typo.h5">Chat history:</MudText>
     <MudList T="MudText">
         @foreach (var message in _messages)
         {

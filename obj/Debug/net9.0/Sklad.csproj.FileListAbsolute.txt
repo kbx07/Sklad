@@ -125,4 +125,6 @@
 /Users/kuban07/RiderProjects/Sklad/obj/Debug/net9.0/Sklad.pdb
 /Users/kuban07/RiderProjects/Sklad/obj/Debug/net9.0/Sklad.genruntimeconfig.cache
 /Users/kuban07/RiderProjects/Sklad/obj/Debug/net9.0/ref/Sklad.dll
-/Users/kuban07/RiderProjects/Sklad/obj/Debug/net9.0/compressed/9zl84hjk63-g8v8j3b7g6.gz
+/Users/kuban07/RiderProjects/Sklad/obj/Debug/net9.0/Sklad.sourcelink.json
+/Users/kuban07/RiderProjects/Sklad/obj/Debug/net9.0/compressed/7bzakq1ksc-ck2kyd2o5d.gz
+/Users/kuban07/RiderProjects/Sklad/obj/Debug/net9.0/compressed/9zl84hjk63-dxnnv8yldy.gz

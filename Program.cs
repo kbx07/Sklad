@@ -21,20 +21,20 @@ builder.Services.AddRazorComponents()
 builder.Services.AddValidatorsFromAssemblyContaining<Add.ToolModelFluentValidator>();
 
 
-// 3. Pobranie klucza OpenAI z konfiguracji
+// OpenAI Key
 var openAiApiKey = builder.Configuration["OpenAi:ApiKey"];
 if (string.IsNullOrEmpty(openAiApiKey))
 {
     throw new Exception("OpenAI API key is missing in configuration.");
 }
 
-// 5. Dodanie usług SignalR i innych
+// SignalR + Services
 builder.Services.AddSignalR();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<ITollRepository, ToolRepository>();
 builder.Services.AddScoped<ToolService>();
 
-// 6. Konfiguracja OpenAI Service
+// OpenAI Service
 builder.Services.AddHttpClient("OpenAi");
 builder.Services.AddScoped<OpenAiService>(sp =>
 {
@@ -43,7 +43,7 @@ builder.Services.AddScoped<OpenAiService>(sp =>
     return new OpenAiService(httpClient, openAiApiKey);
 });
 
-// 4. Konfiguracja bazy danych PostgreSQL
+// PostgreSQL
 var connectionString2 = builder.Configuration.GetConnectionString("DefaultConnection2");
 if (string.IsNullOrEmpty(connectionString2))
 {

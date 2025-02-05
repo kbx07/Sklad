@@ -1,6 +1,10 @@
 {
   "Files": [
     {
+      "Id": "/Users/kuban07/RiderProjects/Sklad/wwwroot/data/css/styles.css",
+      "PackagePath": "staticwebassets/data/css/styles.css"
+    },
+    {
       "Id": "/Users/kuban07/RiderProjects/Sklad/wwwroot/data/history.csv",
       "PackagePath": "staticwebassets/data/history.csv"
     },
