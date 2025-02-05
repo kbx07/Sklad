@@ -1,0 +1,6 @@
+# Pliki IntelliJ Rider (IDEA)
+.idea/
+
+# Pliki build
+bin/
+obj/
