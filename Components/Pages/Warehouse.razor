@@ -2,34 +2,34 @@
 
 @using Sklad.Components.Models
 @using Sklad.Components.Services
-@using Sklad.Components.Pages
 @using System.Threading
 @inject ToolService ToolService
 @inject NavigationManager NavigationManager
-@using MudBlazor
-@using MudBlazor.Services
-
+@using QRCoder
 
 <MudGrid RowSpacing="2" ColumnSpacing="2" Justify="Justify.SpaceBetween">
     <MudItem>
         <MudText Typo="Typo.h5">Warehouse</MudText>
     </MudItem>
     <MudItem>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="() => EditTool()">
+        <MudButton Variant="Variant.Filled"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   Color="Color.Primary" 
+                   Size="Size.Small" 
+                   OnClick="() => EditTool()">
             Add
         </MudButton>
     </MudItem>
 </MudGrid>
-
 
 <MudTable ServerData="ServerReload" Dense="true" Hover="true" @ref="_table">
 
     <ToolBarContent>
         <MudText Typo="Typo.h6">Your tools</MudText>
         <MudSpacer/>
-
-        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search"
+                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                      IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
 
     <HeaderContent>
@@ -46,7 +46,7 @@
             <MudTableSortLabel SortLabel="location_field" T="Tool">Location</MudTableSortLabel>
         </MudTh>
         <MudTh>
-            <MudTableSortLabel SortLabel="category_field" T="Tool">Category</MudTableSortLabel>
+            <MudTableSortLabel SortLabel="exactLocation_field" T="Tool">Exact Location</MudTableSortLabel>
         </MudTh>
         <MudTh>
             <MudTableSortLabel SortLabel="description_field" T="Tool">Description</MudTableSortLabel>
@@ -62,30 +62,40 @@
         </MudTh>
         <MudTh>Actions</MudTh>
     </HeaderContent>
+
     <RowTemplate>
-        <MudTd DataLabel="ID">@context.Id</MudTd>
-        <MudTd DataLabel="Name">@context.Name</MudTd>
-        <MudTd DataLabel="Quantity">@context.Quantity</MudTd>
-        <MudTd DataLabel="Location">@context.Location</MudTd>
-        <MudTd DataLabel="Category">@context.Category</MudTd>
-        <MudTd DataLabel="Description">@context.Description</MudTd>
-        <MudTd DataLabel="Condition">@context.Condition</MudTd>
-        <MudTd DataLabel="Borrowed">@context.Borrowed</MudTd>
-        <MudTd DataLabel="Tags">@context.Tags</MudTd>
-
-
+        <MudTd DataLabel="ID">@context?.Id</MudTd>
+        <MudTd DataLabel="Name">@context?.Name</MudTd>
+        <MudTd DataLabel="Quantity">@context?.Quantity</MudTd>
+        <MudTd DataLabel="Location">@context?.Location?.Name</MudTd>
+        <MudTd DataLabel="Exact Location">@context?.ExactLocation?.Name</MudTd>
+        <MudTd DataLabel="Description">@context?.Description</MudTd>
+        <MudTd DataLabel="Condition">@context?.Condition?.Name</MudTd>
+        <MudTd DataLabel="Borrowed">@context?.Borrowed</MudTd>
+        <MudTd DataLabel="Tags">@context?.Tags</MudTd>
         <MudTd>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
-                       OnClick="() => EditTool(context.Id)">
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Edit"
+                       Size="Size.Small"
+                       OnClick="() => EditTool(context?.Id)">
                 Edit
             </MudButton>
-
-            <MudButton Variant="Variant.Filled" Color="Color.Error" Size="Size.Small"
+            <MudButton Variant="Variant.Filled"
+                       StartIcon="@Icons.Material.Filled.Print"
+                       Color="Color.Info" 
+                       Size="Size.Small"
+                       OnClick="() => PrintTool(context.Id, context.Name)">
+                Print
+            </MudButton>
+            <MudButton Variant="Variant.Filled"
+                       StartIcon="@Icons.Material.Filled.Delete"
+                       Color="Color.Error" 
+                       Size="Size.Small"
                        OnClick="() => DeleteTool(context.Id)">
                 Delete
             </MudButton>
         </MudTd>
-
     </RowTemplate>
 
     <NoRecordsContent>
@@ -97,77 +107,144 @@
     <PagerContent>
         <MudTablePager/>
     </PagerContent>
-
-
 </MudTable>
+
+
 
 @code {
     [Inject] ISnackbar Snackbar { get; set; } = null!;
-    private Tool?[] _pagedData = null!;
-    private MudTable<Tool> _table = null!;
-    private string? _searchString = null;
+    [Inject] private IDialogService? DialogService { get; set; }
+    [Inject] private IJSRuntime _jsRuntime { get; set; }
     
-    [CascadingParameter] IDialogReference MudDialog { get; set; } = null!;
     [Parameter] public string ContentText { get; set; } = null!;
     [Parameter] public string ButtonText { get; set; } = "Delete";
     [Parameter] public Color Color { get; set; } = Color.Error;
-    [Inject] private IDialogService? DialogService { get; set; }
-
+    
+    [CascadingParameter] IDialogReference MudDialog { get; set; } = null!;
+    
+    private Tool?[] _pagedData = null!;
+    private MudTable<Tool> _table = null!;
+    
+    private string? _searchString = null; 
 
     private async Task<TableData<Tool?>> ServerReload(TableState state, CancellationToken token)
-    {
-        IEnumerable<Tool?> data = await ToolService.GetAllToolsAsync();
-        await Task.Delay(300, token);
-
-        data = data.Where(tool =>
-        {
-            if (string.IsNullOrWhiteSpace(_searchString))
-                return true;
-            if (tool.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            if (tool.Location.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            if ($"{tool.Id} {tool.Category} {tool.Description}".Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-                return true;
-            return false;
-        }).ToArray();
-
+{
+    IEnumerable<Tool?> data = await ToolService.GetAllToolsAsync();
+    await Task.Delay(300, token);
     
-        var totalItems = data.Count();
+    if (string.IsNullOrWhiteSpace(_searchString))
+    {
+        var enumerable = data.ToList();
+        var totalItemsAll = enumerable.Count();
+        
         switch (state.SortLabel)
         {
             case "id_field":
-                data = data.OrderByDirection(state.SortDirection, o => o.Id);
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.Id);
                 break;
             case "name_field":
-                data = data.OrderByDirection(state.SortDirection, o => o.Name);
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.Name);
                 break;
             case "quantity_field":
-                data = data.OrderByDirection(state.SortDirection, o => o.Quantity);
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.Quantity);
                 break;
             case "location_field":
-                data = data.OrderByDirection(state.SortDirection, o => o.Location);
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.Location?.Name);
                 break;
-            case "category_field":
-                data = data.OrderByDirection(state.SortDirection, o => o.Category);
+            case "exactLocation_field":
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.ExactLocation?.Name);
                 break;
             case "description_field":
-                data = data.OrderByDirection(state.SortDirection, o => o.Description);
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.Description);
                 break;
             case "condition_field":
-                data = data.OrderByDirection(state.SortDirection, o => o.Condition);
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.Condition?.Name);
                 break;
             case "borrowed_field":
-                data = data.OrderByDirection(state.SortDirection, o => o.Borrowed);
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.Borrowed);
                 break;
             case "tags_field":
-                data = data.OrderByDirection(state.SortDirection, o => o.Tags);
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.Tags);
                 break;
         }
-
-        _pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
-        return new TableData<Tool?>() { TotalItems = totalItems, Items = _pagedData };
+        
+        _pagedData = enumerable
+            .Skip(state.Page * state.PageSize)
+            .Take(state.PageSize)
+            .ToArray();
+        
+        return new TableData<Tool?>()
+        {
+            Items = _pagedData,
+            TotalItems = totalItemsAll
+        };
     }
+    else
+    {
+        var tokens = _searchString
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        
+        data = data.Where(tool =>
+        {
+            if (tool == null)
+                return false;
+            
+            return tokens.All(value => (!string.IsNullOrEmpty(tool.Name) && tool.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
+                                       || tool.Id.ToString().Contains(value, StringComparison.OrdinalIgnoreCase)
+                                       || (!string.IsNullOrEmpty(tool.Location?.Name) && tool.Location.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
+                                       || (!string.IsNullOrEmpty(tool.ExactLocation?.Name) && tool.ExactLocation.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
+                                       || (!string.IsNullOrEmpty(tool.Condition?.Name) && tool.Condition.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
+                                       || (!string.IsNullOrEmpty(tool.Description) && tool.Description.Contains(value, StringComparison.OrdinalIgnoreCase))
+                                       || ((tool.Borrowed.ToString() ?? string.Empty).Contains(value, StringComparison.OrdinalIgnoreCase))
+                                       || (!string.IsNullOrEmpty(tool.Tags) && tool.Tags.Contains(value, StringComparison.OrdinalIgnoreCase)));
+        });
+
+        var enumerable = data.ToList();
+        var totalItems = enumerable.Count();
+        
+        switch (state.SortLabel)
+        {
+            case "id_field":
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.Id);
+                break;
+            case "name_field":
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.Name);
+                break;
+            case "quantity_field":
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.Quantity);
+                break;
+            case "location_field":
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.Location?.Name);
+                break;
+            case "exactLocation_field":
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.ExactLocation?.Name);
+                break;
+            case "description_field":
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.Description);
+                break;
+            case "condition_field":
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.Condition?.Name);
+                break;
+            case "borrowed_field":
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.Borrowed);
+                break;
+            case "tags_field":
+                data = enumerable.OrderByDirection(state.SortDirection, o => o.Tags);
+                break;
+        }
+        
+        _pagedData = enumerable
+            .Skip(state.Page * state.PageSize)
+            .Take(state.PageSize)
+            .ToArray();
+        
+        return new TableData<Tool?>()
+        {
+            Items = _pagedData,
+            TotalItems = totalItems
+        };
+    }
+}
 
     private void OnSearch(string text)
     {
@@ -189,23 +266,45 @@
         }
         catch (Exception e)
         {
-            throw; // TODO handle exception
+            Snackbar.Add("Error deleting tool", Severity.Error);
         }
     }
-    
-  
 
-
-
-   
-
-
-    
-
-
-
- 
-
-    
-
+    private async Task PrintTool(int id, string name)
+    {
+        string qrContent = $"{id} {name}";
+        
+        var generator = new QRCodeGenerator();
+        QRCodeData data = generator.CreateQrCode(qrContent, QRCodeGenerator.ECCLevel.Q);
+        
+        var svgQr = new SvgQRCode(data);
+        string qrSvg = svgQr.GetGraphic(5);
+        
+        string htmlContent = $@"
+<html>
+  <head>
+    <style>
+      @media print {{
+        body {{
+          margin: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+        }}
+        /* Ustawiamy rozmiar dla znacznika <svg> */
+        svg {{
+          width: 2cm;
+          height: 2cm;
+        }}
+      }}
+    </style>
+  </head>
+  <body>
+    {qrSvg}
+  </body>
+</html>";
+        
+        await _jsRuntime.InvokeVoidAsync("printContent", htmlContent);
+    }
 }

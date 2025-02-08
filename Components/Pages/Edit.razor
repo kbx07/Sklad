@@ -7,156 +7,172 @@
 <h3>Edit</h3>
 
 <MudCard>
-    
     <MudForm Model="@_model" @ref="@_form" Validation="@(_toolValidator.ValidateValue)" ValidationDelay="0">
-        
         <MudCardContent>
-
+            <!-- Name -->
             <MudTextField @bind-Value="_model.Name"
                           Immediate="true"
                           Label="Name"
-                          Style="width: 60%;"
+                          Style="width: 66%;"
                           For="@(() => _model.Name)"/>
-
+            
             <MudDivider/>
 
+            <!-- Quantity -->
             <MudNumericField RowGap="50px" @bind-Value="_model.Quantity"
                              Immediate="true"
                              Label="Quantity"
-                             Style="width: 60%;"
+                             Style="width: 66%;"
                              For="@(() => _model.Quantity)"/>
+            
+            <MudDivider />
 
+            <!-- Location -->
             <MudGrid RowSpacing="2" ColumnSpacing="5">
-                <MudItem xs="90">
-                    <MudTextField @bind-Value="_model.Location"
-                                  Immediate="true"
+                <MudItem xs="12" sm="4">
+                    <MudTextField T="string"
                                   Label="Enter a new location"
-                                  For="@(() => _model.Location)"/>
+                                  @bind-Value="_model.Location"
+                                  For="@(() => _model.Location!)" />
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <MudSelect T="int?" @bind-Value="_model.LocationId" Label="Choose saved location" Style="width: 100%;">
+                        @foreach (var loc in _locations)
+                        {
+                            if (loc != null)
+                            {
+                                <MudSelectItem T="int?" Value="@loc.Id">@loc.Name</MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+            
+            <!-- ExactLocation -->
+            <MudGrid RowSpacing="2" ColumnSpacing="5">
+                <MudItem xs="12" sm="4">
+                    <MudTextField T="string"
+                                  Label="Enter a new exact location"
+                                  @bind-Value="_model.ExactLocation"
+                                  For="@(() => _model.ExactLocation!)"/>
+
                 </MudItem>
 
-                <MudItem xs="250" Style="width: 15%;">
-                    <MudSelect T="string" @bind-Value="_model.Location" Label="Choose saved location" Style="width: 100%;">
-                        @foreach (var lok in _locations.Where(l => !string.IsNullOrWhiteSpace(l)))
+                <MudItem xs="12" sm="4">
+                    <MudSelect T="int?" @bind-Value="_model.ExactLocationId" Label="Choose saved exact location" Style="width: 100%;">
+                        @foreach (var exLoc in _exactLocations)
                         {
-                            <MudSelectItem Value="@lok">@lok</MudSelectItem>
+                            <MudSelectItem T="int?" Value="@exLoc.Id">@exLoc.Name</MudSelectItem>
                         }
                     </MudSelect>
                 </MudItem>
             </MudGrid>
 
-
-            <MudGrid Rowspacing="2" ColumnSpacing="5">
-                <MudItem xs="90">
-                    <MudTextField @bind-Value="_model.Category"
-                                  Immediate="true"
-                                  Label="Enter a new category"
-                                  For="@(() => _model.Category)"/>
+            <!-- Condition  -->
+            <MudGrid RowSpacing="2" ColumnSpacing="5">
+                <MudItem xs="12" sm="4" Style="width: 66%">
+                    <MudTextField T="string"
+                                  Label="Enter a new condition"
+                                  @bind-Value="_model.Condition"
+                                  For="@(() => _model.Condition!)"/>
                 </MudItem>
-                <MudItem xs="250" Style="width: 15%;">
-                    <MudSelect T="string"
-                               @bind-Value="_model.Category"
-                               Label="Choose saved category">
-                        @foreach (var cat in _categories.Where(l => !string.IsNullOrWhiteSpace(l)))
+                <MudItem xs="12" sm="4">
+                    <MudSelect T="int?" @bind-Value="_model.ConditionId" Label="Condition" Style="width: 100%;">
+                        @foreach (var cond in _conditions)
                         {
-                            <MudSelectItem Value="@cat">@cat</MudSelectItem>
+                            if (cond != null)
+                            {
+                                <MudSelectItem T="int?" Value="@((int?)cond.Id)">@cond.Name</MudSelectItem>
+                            }
                         }
                     </MudSelect>
                 </MudItem>
             </MudGrid>
 
+            <!-- Description -->
             <MudTextField @bind-Value="_model.Description"
                           Immediate="true"
                           Label="Description"
-                          Style="width: 60%;"
-                         />
+                          Style="width: 66%;"/>
 
-
-            <MudGrid RowSpacer="2" ColumnSpacer="2">
-                <MudItem xs="90">
-                    <MudTextField @bind-Value="_model.Condition"
-                                  Immediate="true"
-                                  Label="Condition"
-                                  For="@(() => _model.Condition)"/>
-                </MudItem>
-                <MudItem xs="250" Style="width: 15%">
-                    <MudSelect T="string" @bind-Value="_model.Condition" Label="Condition">
-                        @foreach (var condition in _conditions.Where(l => !string.IsNullOrWhiteSpace(l)))
-                        {
-                            <MudSelectItem Value="@condition">@condition</MudSelectItem>
-                        }
-                    </MudSelect>
-                </MudItem>
-            </MudGrid>
-
+            
+            <!-- Borrowed Switch -->
             <MudSwitch T="bool"
-                       @bind-Checked="_model.Borrowed"
+                       ValueChanged="OnBorrowedChanged"
                        Label="Borrowed"
                        Color="Color.Primary"
-                       Style="width: 60%;"/>
+                       Style="width: 66%;"/>
 
+            <!-- Tags -->
             <MudTextField @bind-Value="_model.Tags"
                           Immediate="true"
                           Label="Tags"
-                          Style="width: 60%;"
+                          Style="width: 66%;"
                           For="@(() => _model.Tags)"/>
 
+            <!-- Borrower -->
             <MudTextField @bind-Value="_model.Borrower"
                           Immediate="true"
                           Label="Borrower"
-                          Style="width: 60%;"
+                          Style="width: 66%;"
                           For="@(() => _model.Borrower)"/>
 
+            <!-- Return Date -->
             <MudDatePicker @bind-Date="_model.ReturnDate"
                            Label="Return Date"
-                           Style="width: 60%;"/>
+                           Style="width: 66%;"/>
 
+            <!-- Date Modified -->
             <MudDatePicker @bind-Date="_model.DateModified"
                            Label="Date Modified"
-                           Style="width: 60%;"/>
-            
+                           Style="width: 66%;"/>
+
+            <!-- Image Path -->
             <MudTextField @bind-Value="_model.ImagePath"
                           Immediate="true"
                           Label="Image Path"
-                          Style="width: 60%;"
+                          Style="width: 66%;"
                           For="@(() => _model.ImagePath)"/>
-            
         </MudCardContent>
+
         <MudCardActions>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="@(async () => await Submit())">
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Primary" 
+                       Class="ml-auto" 
+                       OnClick="@(async () => await Submit())">
                 Save
             </MudButton>
         </MudCardActions>
     </MudForm>
 </MudCard>
 
-
-
-@* ReSharper disable once UnassignedField.Compiler *@
 @code {
     [Inject] ISnackbar? Snackbar { get; set; }
     [Inject] ToolService? ToolService { get; set; }
     [Inject] NavigationManager? NavigationManager { get; set; }
-
-    private MudForm? _form;
-    private ToolModelFluentValidator _toolValidator = new();
-    private ToolModel _model = new ToolModel { DateAdded = DateTime.Now };
-
+    
     [Parameter] public int? ToolId { get; set; }
-    private IEnumerable<string?> _locations = new List<string>();
-    private IEnumerable<string?> _categories = new List<string>();
-    private IEnumerable<string?> _conditions = new List<string>();
-    private string? _newLocation; 
-
-    private readonly bool _isAddingNewLocation = false;
-
+    
+    private MudForm? _form;
+    private readonly ToolModelFluentValidator _toolValidator = new();
+    private ToolModel _model = new(){ DateAdded = DateTime.Now };
+    private List<Location?> _locations = new();
+    private List<ExactLocation?> _exactLocations = new();
+    private List<Condition?> _conditions = new();
+    
+    private void OnBorrowedChanged(bool newValue)
+    {
+        _model.Borrowed = newValue;
+    }
+    
     protected override async Task OnInitializedAsync()
     {
         if (ToolService != null)
         {
-            _locations = await ToolService.GetLocationsAsync();
-            _categories = await ToolService.GetCategoriesAsync();
-            _conditions = await ToolService.GetConditionsAsync();
-
+            _locations = (await ToolService.GetLocationsAsync()).ToList();
+            _exactLocations = (await ToolService.GetExactLocationsAsync()).ToList();
+            _conditions = (await ToolService.GetConditionsAsync()).ToList();
+            
             if (ToolId.HasValue)
             {
                 var tool = await ToolService.GetToolByIdAsync(ToolId.Value);
@@ -165,39 +181,46 @@
                     _model = new ToolModel
                     {
                         Name = tool.Name,
-                        Location = tool.Location,
                         Description = tool.Description,
                         Borrowed = tool.Borrowed,
                         DateAdded = tool.DateAdded,
                         DateModified = tool.DateModified,
-                        Category = tool.Category,
-                        Condition = tool.Condition,
                         Borrower = tool.Borrower,
                         ReturnDate = tool.ReturnDate,
                         Tags = tool.Tags,
                         ImagePath = tool.ImagePath,
-                        Quantity = tool.Quantity
+                        Quantity = tool.Quantity,
+                        
+                        LocationId = tool.LocationId,
+                        ExactLocationId = tool.ExactLocationId,
+                        ConditionId = tool.ConditionId
                     };
                 }
             }
         }
     }
+    
     public class ToolModel
     {
+        public int? LocationId { get; set; }
+        public string? Location { get; set; }
+        public int? ExactLocationId { get; set; }
+        public string? ExactLocation { get; set; }
+        public int? ConditionId { get; set; }
+        public string? Condition { get; set; }
+
         public string? Name { get; set; }
         public string? Description { get; set; }
-        public string? Location { get; set; }
         public bool Borrowed { get; set; }
         public DateTime DateAdded { get; set; }
         public DateTime? DateModified { get; set; }
-        public string? Category { get; set; }
-        public string? Condition { get; set; }
         public string? Borrower { get; set; }
         public DateTime? ReturnDate { get; set; }
         public string? Tags { get; set; }
         public string? ImagePath { get; set; }
         public int Quantity { get; set; }
     }
+    
     public class ToolModelFluentValidator : AbstractValidator<ToolModel>
     {
         public ToolModelFluentValidator()
@@ -205,27 +228,33 @@
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Name cannot be empty!")
                 .Length(1, 200);
-            RuleFor(x => x.Location)
-                .NotEmpty().WithMessage("Location cannot be empty!")
-                .Length(1, 200);
-            RuleFor(x => x.Description)
-                .Length(1, 200);
 
             RuleFor(x => x.Quantity)
                 .NotEmpty().WithMessage("Quantity cannot be empty!")
                 .GreaterThan(0);
-
-            RuleFor(x => x.Category)
-                .NotEmpty().WithMessage("Category cannot be empty!")
-                .Length(1, 100);
-
-            RuleFor(x => x.Condition)
-                //.NotEmpty()
-                .Length(1, 100);
+            
+            RuleFor(x => x).Custom((model, context) =>
+            {
+                if (!model.LocationId.HasValue && string.IsNullOrWhiteSpace(model.Location))
+                {
+                    context.AddFailure("Location", "You must choose a location from the list or enter a new one.");
+                }
+            });
+            
+            // RuleFor(x => x).Custom((model, context) =>
+            // {
+            //     if (!model.LocationId.HasValue && string.IsNullOrWhiteSpace(model.Location))
+            //     {
+            //        context.AddFailure("ExactLocation", "You must choose a exact location from the list or enter a new one.");
+            //     }
+            // });
+            
+            RuleFor(x => x.Description)
+                .Length(0, 200);
 
             RuleFor(x => x.Borrower)
                 .Length(0, 100);
-                
+
             RuleFor(x => x.Tags)
                 .Length(0, 100);
 
@@ -235,75 +264,96 @@
 
         public Func<object, string, Task<IEnumerable<string>>> ValidateValue => async (model, propertyName) =>
         {
-            var result = await ValidateAsync(ValidationContext<ToolModel>.CreateWithOptions((ToolModel)model, x => x.IncludeProperties(propertyName)));
+            var context = new ValidationContext<ToolModel>((ToolModel)model);
+            var result = await ValidateAsync(context);
             if (result.IsValid)
                 return Array.Empty<string>();
-            return result.Errors.Select(e => e.ErrorMessage);
+            
+            return result.Errors
+                .Where(e => e.PropertyName == propertyName || string.IsNullOrWhiteSpace(e.PropertyName))
+                .Select(e => e.ErrorMessage);
         };
+
     }
 
     private async Task Submit()
-{
-    await _form.Validate();
-
-    if (_form.IsValid)
     {
-        if (_isAddingNewLocation && !string.IsNullOrWhiteSpace(_newLocation))
-        {
-            _model.Location = _newLocation;
-            await ToolService.AddLocationAsync(_newLocation);
-            _locations = await ToolService.GetLocationsAsync();
-        }
         
-        if (ToolId.HasValue)
+        await _form!.Validate();
+
+        if (_form.IsValid)
         {
-            var existingTool = await ToolService.GetToolByIdAsync(ToolId.Value);
-            if (existingTool == null)
+            if (!string.IsNullOrWhiteSpace(_model.Location) 
+                && !_model.LocationId.HasValue)
             {
-                Snackbar.Add("Tool not found for editing.", MudBlazor.Severity.Error);
-                return;
+                var newLoc = await ToolService!.AddLocationAsync(_model.Location);
+                
+                _model.LocationId = newLoc?.Id;
             }
             
-            existingTool.Name = _model.Name;
-            existingTool.Location = _model.Location;
-            existingTool.Description = _model.Description;
-            existingTool.Borrowed = _model.Borrowed;
-            existingTool.DateAdded = _model.DateAdded;
-            existingTool.DateModified = DateTime.Now;
-            existingTool.Category = _model.Category;
-            existingTool.Condition = _model.Condition;
-            existingTool.Borrower = _model.Borrower;
-            existingTool.ReturnDate = _model.ReturnDate;
-            existingTool.Tags = _model.Tags;
-            existingTool.ImagePath = _model.ImagePath;
-            existingTool.Quantity = _model.Quantity;
-            
-            await ToolService.UpdateToolAsync(existingTool, existingTool.Id);
-        }
-        else
-        {
-            var newTool = new Tool
+            if (!string.IsNullOrWhiteSpace(_model.ExactLocation))
             {
-                Name = _model.Name,
-                Location = _model.Location,
-                Description = _model.Description,
-                Borrowed = _model.Borrowed,
-                DateAdded = DateTime.Now,
-                DateModified = DateTime.Now,
-                Category = _model.Category,
-                Condition = _model.Condition,
-                Borrower = _model.Borrower,
-                ReturnDate = _model.ReturnDate,
-                Tags = _model.Tags,
-                ImagePath = _model.ImagePath,
-                Quantity = _model.Quantity
-            };
+                var newExactLoc = await ToolService!.AddExactLocationAsync(_model.ExactLocation);
+                _model.ExactLocationId = newExactLoc?.Id;
+            }
+            
+            if (!string.IsNullOrWhiteSpace(_model.Condition))
+            {
+                var newCondition = await ToolService!.AddConditionAsync(_model.Condition);
+                _model.ConditionId = newCondition?.Id;
+            }
+            
+            if (ToolId.HasValue)
+            {
+                var existingTool = await ToolService!.GetToolByIdAsync(ToolId.Value);
+                if (existingTool == null)
+                {
+                    Snackbar?.Add("Tool not found for editing.", MudBlazor.Severity.Error);
+                    return;
+                }
 
-            await ToolService.AddToolAsync(newTool);
+                existingTool.Name = _model.Name;
+                existingTool.Description = _model.Description;
+                existingTool.Borrowed = _model.Borrowed;
+                existingTool.DateAdded = _model.DateAdded;
+                existingTool.DateModified = DateTime.Now;
+                existingTool.Borrower = _model.Borrower;
+                existingTool.ReturnDate = _model.ReturnDate;
+                existingTool.Tags = _model.Tags;
+                existingTool.ImagePath = _model.ImagePath;
+                existingTool.Quantity = _model.Quantity;
+                
+                existingTool.LocationId = _model.LocationId;
+                existingTool.ExactLocationId = _model.ExactLocationId;
+                existingTool.ConditionId = _model.ConditionId;
+
+                await ToolService.UpdateToolAsync(existingTool, existingTool.Id);
+            }
+            else
+            {
+                var newTool = new Tool
+                {
+                    Name = _model.Name,
+                    Description = _model.Description,
+                    Borrowed = _model.Borrowed,
+                    DateAdded = DateTime.Now,
+                    DateModified = DateTime.Now,
+                    Borrower = _model.Borrower,
+                    ReturnDate = _model.ReturnDate,
+                    Tags = _model.Tags,
+                    ImagePath = _model.ImagePath,
+                    Quantity = _model.Quantity,
+                    
+                    LocationId = _model.LocationId,
+                    ExactLocationId = _model.ExactLocationId,
+                    ConditionId = _model.ConditionId
+                };
+
+                await ToolService!.AddToolAsync(newTool);
+            }
+
+            Snackbar?.Add("Tool saved successfully!", MudBlazor.Severity.Success);
+            NavigationManager?.NavigateTo("/Warehouse");
         }
-
-        Snackbar?.Add("Tool saved successfully!", MudBlazor.Severity.Success);
-        NavigationManager?.NavigateTo("/Warehouse");
     }
-}
 }

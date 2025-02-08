@@ -30,7 +30,7 @@ public class OpenAiService
                     new { role = "system", content = "Du bist sehr gut" },
                     new { role = "user", content = userPrompt },
                 },
-                max_tokens = 100,
+                max_tokens = 300,
                 temperature = 0.7
             };
 

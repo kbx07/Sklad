@@ -1,2 +1,48 @@
 
 05.02.2025 13:47:26;"Erzähle mir einen Witz.";"Warum hat der Teddybär keinen Kuchen bekommen? Weil er schon gestopft war!"
+06.02.2025 18:22:42;"Hauptstadt von der Slowakei?
+";"Es hat nicht geklappt, Antwort von OpenAI zu bekommen"
+06.02.2025 18:24:21;"gnfg";"Es hat nicht geklappt, Antwort von OpenAI zu bekommen"
+06.02.2025 18:35:25;"vbcv";"Vielen Dank! Wenn du noch Fragen hast oder etwas besprechen möchtest, lass es mich gerne wissen."
+06.02.2025 18:35:41;"Hauptstadt Slowakei?
+";"Die Hauptstadt der Slowakei ist Bratislava."
+06.02.2025 18:36:20;"Sxhreibe mir kurze Methode in C# für konsoleneingabe
+";"Gerne! Hier ist eine kurze Methode in C# für die Konsoleneingabe:
+
+```csharp
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("Bitte geben Sie etwas ein:");
+        string eingabe = Console.ReadLine();
+
+        Console.WriteLine("Sie haben eingegeben: " + eingabe);
+    }
+}
+```
+
+Diese Methode fordert den Benutzer auf, etwas einzugeben, liest dann die Eingabe"
+06.02.2025 18:37:25;"Schreibe mir kurze Methode in. C# um eine eingabe über console zu machen";"Klar, hier ist eine kurze Methode in C#, um eine Eingabe über die Konsole zu machen:
+
+```csharp
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("Bitte geben Sie etwas ein:");
+        string eingabe = Console.ReadLine();
+
+        Console.WriteLine("Sie haben eingegeben: " + eingabe);
+    }
+}
+```
+
+Diese Methode fordert den Benutzer auf, etwas einzugeben, liest die Eingabe ein und gibt sie dann auf der Konsole aus."
+08.02.2025 15:15:21;"Erzähle mir einen Witz.";"Warum hat das Mathebuch seine Hausaufgaben nicht gemacht? 
+
+Weil es zu viele Probleme hatte!"

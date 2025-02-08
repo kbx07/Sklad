@@ -18,7 +18,7 @@ builder.Services.AddMudServices();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddValidatorsFromAssemblyContaining<Edit.ToolModelFluentValidator>();
+//builder.Services.AddValidatorsFromAssemblyContaining<Edit.ToolModelFluentValidator>();
 
 
 // OpenAI Key

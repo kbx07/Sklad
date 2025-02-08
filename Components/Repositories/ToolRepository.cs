@@ -14,10 +14,11 @@ public class ToolRepository : Repository<Tool>, ITollRepository
         _context = context;
     }
     
-    public async Task<IEnumerable<Tool>> GetToolsByLocation(string location)
+    public async Task<IEnumerable<Tool>> GetToolsByLocationName(string locationName)
     {
         return await _context.Tool
-            .Where(f => f.Location == location)
+            .Include(t => t.Location)
+            .Where(t => t.Location != null && t.Location.Name == locationName)
             .ToListAsync();
     }
 
@@ -28,85 +29,114 @@ public class ToolRepository : Repository<Tool>, ITollRepository
             .ToListAsync();
     }
     
-    public async Task<IEnumerable<Tool>> GetToolsByCategory(string category)
+    public async Task<IEnumerable<Tool>> GetToolsByExactLocationName(string exactLocationName)
     {
         return await _context.Tool
-            .Where(f => f.Category == category)
+            .Include(t => t.ExactLocation)
+            .Where(t => t.ExactLocation != null && t.ExactLocation.Name == exactLocationName)
+            .ToListAsync();
+    }
+
+    
+    public async Task<IEnumerable<Location?>> GetLocationsAsync()
+    {
+        return await _context.Location
+            .AsNoTracking()         
+            .ToListAsync();
+    }
+
+
+    public async Task<IEnumerable<ExactLocation?>> GetExactLocationsAsync()
+    {
+        return await _context.ExactLocation
+            .AsNoTracking()         
+            .ToListAsync();
+    }
+
+
+
+    public async Task<IEnumerable<Condition?>> GetConditionsAsync()
+    {
+        return await _context.Condition
+            .AsNoTracking()         
             .ToListAsync();
     }
     
-    public async Task<IEnumerable<string?>> GetLocationsAsync()
+    public async Task<Location?> AddLocationAsync(string? locationName)
     {
-        return await _context.Tool.Select(t => t.Location).Distinct().ToListAsync();
+        var location = await _context.Location.FirstOrDefaultAsync(l => l.Name == locationName);
+
+        if (location == null)
+        {
+            location = new Location(){Name = locationName};
+            _context.Location.Add(location);
+            await _context.SaveChangesAsync();
+        }
+        return location;
     }
 
-    public async Task<IEnumerable<string?>> GetCategoriesAsync()
+    public async Task<ExactLocation?> AddExactLocationAsync(string exactLocationName)
     {
-        
-        return await _context.Tool.Select(t => t.Category).Distinct().ToListAsync();
-    }
+        var exactLocation = await _context.ExactLocation.FirstOrDefaultAsync(l => l.Name == exactLocationName);
 
-    public async Task<IEnumerable<string?>> GetConditionsAsync()
-    {
-        return await _context.Tool.Select(t => t.Condition).Distinct().ToListAsync();
+        if (exactLocation == null)
+        {
+            exactLocation = new ExactLocation(){Name = exactLocationName};
+            _context.ExactLocation.Add(exactLocation);
+            await _context.SaveChangesAsync();
+        }
+        return exactLocation;
     }
     
-    public async Task AddLocationAsync(string? location)
+    public async Task<Condition?> AddConditionAsync(string conditionName)
     {
-        if (!await _context.Tool.AnyAsync(t => t.Location == location))
+       var condition = await _context.Condition.FirstOrDefaultAsync(c => c.Name == conditionName);
+
+       if (condition == null)
+       {
+           condition = new Condition(){Name = conditionName};
+           _context.Condition.Add(condition);
+           await _context.SaveChangesAsync();
+       }
+       return condition;
+    }
+
+
+
+
+    public async Task DeleteLocationAsync(string locationName)
+    {
+        var locationEntity = await _context.Location
+            .FirstOrDefaultAsync(l => l.Name == locationName);
+
+        if (locationEntity != null)
         {
-            _context.Tool.Add(new Tool { Location = location });
+            _context.Location.Remove(locationEntity);
             await _context.SaveChangesAsync();
         }
     }
-    
-    public async Task AddCategoryAsync(string category)
-    {
-        if (!await _context.Tool.AnyAsync(t => t.Category == category))
-        {
-            _context.Tool.Add(new Tool { Category = category });
-            await _context.SaveChangesAsync();
-        }
-    }
 
-    public async Task AddConditionAsync(string condition)
-    {
-        if (!await _context.Tool.AnyAsync(t => t.Condition == condition))
-        {
-            _context.Tool.Add(new Tool { Condition = condition });
-            await _context.SaveChangesAsync();
-        }
-    }
 
-    public async Task DeleteLocationAsync(string location)
+    public async Task DeleteExactLocationAsync(string exactLocation)
     {
-        var toolsWithLocation = await _context.Tool.Where(t => t.Location == location).ToListAsync();
-    
-        if (toolsWithLocation.Any())
-        {
-            _context.Tool.RemoveRange(toolsWithLocation);
-            await _context.SaveChangesAsync();
-        }
-    }
+        var exactLocationEntity = await _context.ExactLocation
+            .FirstOrDefaultAsync(l => l.Name == exactLocation);
 
-    public async Task DeleteCategoryAsync(string category)
-    {
-        var toolsWithCategory = await _context.Tool.Where(t => t.Category == category).ToListAsync();
-    
-        if (toolsWithCategory.Any())
+        if (exactLocationEntity != null)
         {
-            _context.Tool.RemoveRange(toolsWithCategory);
+            _context.ExactLocation.Remove(exactLocationEntity);
             await _context.SaveChangesAsync();
         }
     }
 
     public async Task DeleteConditionAsync(string condition)
     {
-        var toolsWithCategory = await _context.Tool.Where(t => t.Condition == condition).ToListAsync();
+        var conditionEntity = await _context.Condition
+            .FirstOrDefaultAsync(l => l.Name == condition);
     
-        if (toolsWithCategory.Any())
+        if (conditionEntity != null)
         {
-            _context.Tool.RemoveRange(toolsWithCategory);
+            _context.Condition.Remove(conditionEntity);
             await _context.SaveChangesAsync();
         }
     }

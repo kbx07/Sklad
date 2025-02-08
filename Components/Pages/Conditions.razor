@@ -5,6 +5,7 @@
 @inject NavigationManager NavigationManager
 @using MudBlazor
 @using MudBlazor.Services
+@using Sklad.Components.Models
 
 <MudGrid RowSpacing="2" ColumnSpacing="2" Justify="Justify.SpaceBetween">
     <MudItem>
@@ -23,10 +24,11 @@
         <MudTh Style="text-align: right;">Actions</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Condition">@context</MudTd> <!-- context to string (lokalizacja) -->
+        <MudTd DataLabel="Condition">@context.Name</MudTd> <!-- context to string (lokalizacja) -->
         <MudTd Style="text-align: right;">
             <MudButton Variant="Variant.Filled" Color="Color.Error" Size="Size.Small"
-                       OnClick="() => DeleteCondition(context)">
+                       OnClick="() => DeleteCondition(context.Name)"
+                       StartIcon="@Icons.Material.Filled.Delete">
                 Delete
             </MudButton>
         </MudTd>
@@ -43,7 +45,11 @@
     <FooterContent>
         <MudTd ColSpan="2">
             <MudTextField @bind-Value="_newCondition" Placeholder="Enter new condition" Variant="Variant.Outlined" />
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="() => AddCondition(_newCondition)">
+            <MudButton Variant="Variant.Filled"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       Color="Color.Primary" 
+                       Size="Size.Small" 
+                       OnClick="() => AddCondition(_newCondition)">
                 Add
             </MudButton>
         </MudTd>
@@ -53,40 +59,42 @@
 
 
 @code {
+    [Inject] ISnackbar? Snackbar { get; set; }
+    
     private IEnumerable<string> _pagedData;
-    private MudTable<string> _table;
-    private int _totalItems;
-    private string _searchString = string.Empty;
+    private MudTable<Condition> _table;
+    
+    private readonly string _searchString = string.Empty;
     private string _newCondition = string.Empty;
-
-    [Inject] ISnackbar Snackbar { get; set; }
-
-    private async Task<TableData<string>> ServerReload(TableState state, CancellationToken token)
+    
+    private async Task<TableData<Condition>> ServerReload(TableState state, CancellationToken token)
     {
-        IEnumerable<string> data = await ToolService.GetConditionsAsync();
-
+        IEnumerable<Condition?> data = await ToolService.GetConditionsAsync();
+        
         if (!string.IsNullOrWhiteSpace(_searchString))
         {
             data = data.Where(condition =>
-                condition.Contains(_searchString, StringComparison.OrdinalIgnoreCase));
+                condition?.Name != null &&
+                condition.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase));
         }
-
+        
         if (!string.IsNullOrEmpty(state.SortLabel))
         {
             data = state.SortDirection == SortDirection.Ascending
-                ? data.OrderBy(condition => condition)
-                : data.OrderByDescending(condition => condition);
+                ? data.OrderBy(condition => condition?.Name)
+                : data.OrderByDescending(condition => condition?.Name);
         }
-
-        var pagedData = data
+        
+        var dataArray = data as Condition[] ?? data.ToArray();
+        var pagedData = dataArray
             .Skip(state.Page * state.PageSize)
             .Take(state.PageSize)
             .ToArray();
-
-        return new TableData<string>
+        
+        return new TableData<Condition>
         {
-            TotalItems = data.Count(),
-            Items = pagedData
+            TotalItems = dataArray.Length,
+            Items = pagedData!
         };
     }
 
@@ -95,13 +103,13 @@
         try
         {
             await ToolService.AddConditionAsync(condition);
-            Snackbar.Add($"Condition '{condition}' added successfully.", Severity.Success);
-            _table.ReloadServerData();
+            Snackbar?.Add($"Condition '{condition}' added successfully.", Severity.Success);
+            await _table.ReloadServerData();
             _newCondition = string.Empty;
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Error adding location: {ex.Message}", Severity.Error);
+            Snackbar?.Add($"Error adding location: {ex.Message}", Severity.Error);
         }
     }
 
@@ -110,19 +118,12 @@
         try
         {
             await ToolService.DeleteConditionAsync(condition);
-            Snackbar.Add($"Condition '{condition}' deleted successfully.", Severity.Success);
-            _table.ReloadServerData();
+            Snackbar?.Add($"Condition '{condition}' deleted successfully.", Severity.Success);
+            await _table.ReloadServerData();
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Error deleting location: {ex.Message}", Severity.Error);
+            Snackbar?.Add($"Error deleting location: {ex.Message}", Severity.Error);
         }
     }
-
-    private void OnSearch(string text)
-    {
-        _searchString = text;
-        _table.ReloadServerData();
-    }
-
 }

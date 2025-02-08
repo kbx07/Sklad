@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor;
 using Sklad.Components.Data;
@@ -16,10 +17,17 @@ public class Repository<T> : IRepository<T> where T : class
         _dbSet = context.Set<T>();
     }
     
-    public async Task<IEnumerable<T?>> GetAllAsync()
+ public async Task<IEnumerable<T?>> GetAllAsync(params Expression<Func<T, object>>[] includes)
+{
+    IQueryable<T> query = _dbSet;
+    foreach (var include in includes)
     {
-        return await _dbSet.OrderByDescending(x => EF.Property<int>(x, "Id")).ToListAsync();
+        query = query.Include(include);
     }
+    return await query.OrderByDescending(x => EF.Property<DateTime>(x, "DateModified")).ToListAsync();
+}
+
+
     
     public async Task<T?> GetByIdAsync(int id)
     {

@@ -14,7 +14,10 @@ public class ToolService
 
     public async Task<IEnumerable<Tool?>> GetAllToolsAsync()
     {
-        return await _tollRepository.GetAllAsync();
+        return await _tollRepository.GetAllAsync(
+            tool => tool.Location,
+            tool => tool.ExactLocation,
+            tool => tool.Condition);
     }
 
     public async Task<Tool?> GetToolByIdAsync(int tollId)
@@ -49,42 +52,42 @@ public class ToolService
     
     public async Task<IEnumerable<Tool?>> GetTollByLocationAsync(string tollLocation)
     {
-        return await _tollRepository.GetToolsByLocation(tollLocation);
+        return await _tollRepository.GetToolsByLocationName(tollLocation);
     }
 
-    public async Task<IEnumerable<Tool?>> GetTollByCategoryAsync(string tollCategory)
+    public async Task<IEnumerable<Tool?>> GetTollByExactLocation(string exactLocation)
     {
-        return await _tollRepository.GetToolsByCategory(tollCategory);
+        return await _tollRepository.GetToolsByExactLocationName(exactLocation);
     }
     
-    public async Task<IEnumerable<string?>> GetLocationsAsync()
+    public async Task<IEnumerable<Location?>> GetLocationsAsync()
     {
         return await _tollRepository.GetLocationsAsync();
     }
-
-    public async Task<IEnumerable<string?>> GetCategoriesAsync()
+    
+    public async Task<IEnumerable<ExactLocation?>> GetExactLocationsAsync()
     {
-        return await _tollRepository.GetCategoriesAsync();
+        return await _tollRepository.GetExactLocationsAsync();
     }
-
-    public async Task<IEnumerable<string?>> GetConditionsAsync()
+    
+    public async Task<IEnumerable<Condition?>> GetConditionsAsync()
     {
         return await _tollRepository.GetConditionsAsync();
     }
-    
-    public async Task AddLocationAsync(string? location)
-    {
-        await _tollRepository.AddLocationAsync(location);
-    }
 
-    public async Task AddCategoryAsync(string category)
+    public async Task<ExactLocation?> AddExactLocationAsync(string exactLocationName)
     {
-        await _tollRepository.AddCategoryAsync(category);
+      return await _tollRepository.AddExactLocationAsync(exactLocationName);
     }
     
-    public async Task AddConditionAsync(string category)
+    public async Task<Location?> AddLocationAsync(string? location)
     {
-        await _tollRepository.AddConditionAsync(category);
+        return await _tollRepository.AddLocationAsync(location);
+    }
+    
+    public async Task<Condition?> AddConditionAsync(string category)
+    {
+        return await _tollRepository.AddConditionAsync(category);
     }
 
     public async Task DeleteLocationsAsync(string location)
@@ -96,8 +99,8 @@ public class ToolService
     {
         await _tollRepository.DeleteConditionAsync(condition);
     }
-    public async Task DeleteCategoryAsync(string category)
+    public async Task DeleteExactLocationAsync(string category)
     {
-        await _tollRepository.DeleteCategoryAsync(category);
+        await _tollRepository.DeleteExactLocationAsync(category);
     }
 }

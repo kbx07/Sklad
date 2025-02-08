@@ -1,16 +1,16 @@
-@page "/Locations"
+@page "/Category"
 
-@using Sklad.Components.Models
 @using Sklad.Components.Services
 @using System.Threading
 @inject ToolService ToolService
 @inject NavigationManager NavigationManager
 @using MudBlazor
 @using MudBlazor.Services
+@using Sklad.Components.Models
 
 <MudGrid RowSpacing="2" ColumnSpacing="2" Justify="Justify.SpaceBetween">
     <MudItem>
-        <MudText Typo="Typo.h5">Warehouse Locations</MudText>
+        <MudText Typo="Typo.h5">Warehouse exact locations</MudText>
     </MudItem>
     <MudItem>
        
@@ -20,18 +20,18 @@
 <MudTable ServerData="ServerReload" Dense="true" Hover="true" @ref="_table">
     <HeaderContent>
         <MudTh>
-            <MudTableSortLabel SortLabel="location_field" T="string">Location</MudTableSortLabel>
+            <MudTableSortLabel SortLabel="location_field" T="string">Exact location</MudTableSortLabel>
         </MudTh>
         <MudTh Style="text-align: right;">Actions</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Location">@context.Name</MudTd> <!-- context to string (lokalizacja) -->
+        <MudTd DataLabel="Category">@context.Name</MudTd> <!-- context to string (lokalizacja) -->
         <MudTd Style="text-align: right;">
-            <MudButton Variant="Variant.Filled" 
+            <MudButton Variant="Variant.Filled"
+                       StartIcon="@Icons.Material.Filled.Delete"
                        Color="Color.Error" 
                        Size="Size.Small"
-                       StartIcon="@Icons.Material.Filled.Delete"
-                       OnClick="() => DeleteLocation(context.Name!)">
+                       OnClick="() => DeleteCategory(context.Name)">
                 Delete
             </MudButton>
         </MudTd>
@@ -47,70 +47,65 @@
     </PagerContent>
     <FooterContent>
         <MudTd ColSpan="2">
-            <MudTextField @bind-Value="_newLocation" Placeholder="Enter new location" Variant="Variant.Outlined" />
+            <MudTextField @bind-Value="_newCategory" Placeholder="Enter new exact location" Variant="Variant.Outlined" />
             <MudButton Variant="Variant.Filled"
                        StartIcon="@Icons.Material.Filled.Add"
                        Color="Color.Primary" 
                        Size="Size.Small" 
-                       OnClick="() => AddLocation(_newLocation)">
+                       OnClick="() => AddCategory(_newCategory)">
                 Add
             </MudButton>
         </MudTd>
     </FooterContent>
 </MudTable>
 
-
-
 @code {
     [Inject] ISnackbar? Snackbar { get; set; }
-    
-    private IEnumerable<string>? _pagedData;
-    private MudTable<Location?> _table;
-    
-    private readonly string _searchString = string.Empty;
-    private string _newLocation = string.Empty;
+    private IEnumerable<string> _pagedData;
+    private MudTable<ExactLocation?> _table;
 
-    private async Task<TableData<Location>> ServerReload(TableState state, CancellationToken token)
+    private readonly string _searchString = string.Empty;
+    private string _newCategory = string.Empty;
+    
+    private async Task<TableData<ExactLocation>> ServerReload(TableState state, CancellationToken token)
     {
-        IEnumerable<Location?> data = await ToolService.GetLocationsAsync();
+        IEnumerable<ExactLocation?> data = await ToolService.GetExactLocationsAsync();
         
         if (!string.IsNullOrWhiteSpace(_searchString))
         {
-            data = data.Where(location =>
-                location?.Name != null &&
-                location.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase));
+            data = data.Where(exactCon =>
+                exactCon?.Name != null &&
+                exactCon.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase));
         }
         
         if (!string.IsNullOrEmpty(state.SortLabel))
         {
             data = state.SortDirection == SortDirection.Ascending
-                ? data.OrderBy(location => location?.Name)
-                : data.OrderByDescending(location => location?.Name);
+                ? data.OrderBy(exactCon => exactCon?.Name)
+                : data.OrderByDescending(exactCon => exactCon?.Name);
         }
         
-        var dataArray = data as Location[] ?? data.ToArray();
+        var dataArray = data as ExactLocation[] ?? data.ToArray();
         var pagedData = dataArray
             .Skip(state.Page * state.PageSize)
             .Take(state.PageSize)
             .ToArray();
-
-       
-        return new TableData<Location>
+        
+        return new TableData<ExactLocation>
         {
             TotalItems = dataArray.Length,
             Items = pagedData!
         };
     }
 
-
-    private async void AddLocation(string location)
+    private async void AddCategory(string category)
     {
         try
         {
-            await ToolService.AddLocationAsync(location);
-            Snackbar?.Add($"Location '{location}' added successfully.", Severity.Success);
+            await ToolService.AddExactLocationAsync(category);
+            Snackbar?.Add($"Category '{category}' added successfully.", Severity.Success);
             await _table.ReloadServerData();
-            _newLocation = string.Empty;
+            _newCategory = string.Empty;
         }
         catch (Exception ex)
         {
@@ -118,12 +113,12 @@
         }
     }
 
-    private async void DeleteLocation(string location)
+    private async void DeleteCategory(string category)
     {
         try
         {
-            await ToolService.DeleteLocationsAsync(location);
-            Snackbar?.Add($"Location '{location}' deleted successfully.", Severity.Success);
+            await ToolService.DeleteExactLocationAsync(category);
+            Snackbar?.Add($"Category '{category}' deleted successfully.", Severity.Success);
             await _table.ReloadServerData();
         }
         catch (Exception ex)
@@ -131,5 +126,5 @@
             Snackbar?.Add($"Error deleting location: {ex.Message}", Severity.Error);
         }
     }
-
+    
 }

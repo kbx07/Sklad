@@ -4,18 +4,18 @@ namespace Sklad.Components.Interfaces;
 
 public interface ITollRepository : IRepository<Tool>
 {
-    Task<IEnumerable<Tool>> GetToolsByLocation(string location);
+    Task<IEnumerable<Tool>> GetToolsByLocationName(string locationName);
     Task<IEnumerable<Tool>> GetToolsByName(string location);
-    Task<IEnumerable<Tool>> GetToolsByCategory(string category);
-    Task<IEnumerable<string?>> GetLocationsAsync();
-    Task<IEnumerable<string?>> GetCategoriesAsync();
-    Task<IEnumerable<string?>> GetConditionsAsync();
+    Task<IEnumerable<Tool>> GetToolsByExactLocationName(string exactLocationName);
+    Task<IEnumerable<Location?>> GetLocationsAsync();
+    Task<IEnumerable<ExactLocation?>> GetExactLocationsAsync();
+    Task<IEnumerable<Condition?>> GetConditionsAsync();
 
-    Task AddLocationAsync(string? location);
-    Task AddCategoryAsync(string category);
-    Task AddConditionAsync(string category);
+    Task<Location?> AddLocationAsync(string? locationName);
+    Task<ExactLocation?> AddExactLocationAsync(string exactLocationName);
+    Task<Condition?> AddConditionAsync(string categoryName);
     Task DeleteLocationAsync(string location);
-    Task DeleteCategoryAsync(string category);
+    Task DeleteExactLocationAsync(string exactLocation);
     Task DeleteConditionAsync(string condition);
 
 
