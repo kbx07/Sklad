@@ -1,6 +1,6 @@
 DE
 
-Dies ist ein Lagerverwaltungssystem, das mit MudBlazor entwickelt wurde. Es ermöglicht die Verwaltung von Werkzeugen im Lager, einschließlich Hinzufügen, Bearbeiten und Löschen von Werkzeugen. Das System verbindet sich mit einer PostgreSQL-Datenbank, um alle Daten sicher zu speichern. Es bietet eine benutzerfreundliche Oberfläche und eine reibungslose Navigation dank MudBlazor's moderner UI-Komponenten.
+Dies ist ein kleines Lagerverwaltungssystem, das mit MudBlazor entwickelt wurde. Es ermöglicht die Verwaltung von Werkzeugen im Lager, einschließlich Hinzufügen, Bearbeiten und Löschen von Werkzeugen. Das System verbindet sich mit einer PostgreSQL-Datenbank, um alle Daten sicher zu speichern. Es bietet eine benutzerfreundliche Oberfläche und eine reibungslose Navigation dank MudBlazor's moderner UI-Komponenten.
 
 EN
 
